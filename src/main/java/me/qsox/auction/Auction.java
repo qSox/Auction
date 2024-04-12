@@ -13,11 +13,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AuctionPlugin extends JavaPlugin implements CommandExecutor, Listener {
+public class Auction extends JavaPlugin implements CommandExecutor, Listener {
 
     private AuctionItem currentAuction;
 
@@ -84,7 +85,7 @@ public class AuctionPlugin extends JavaPlugin implements CommandExecutor, Listen
                 }
             }.runTaskTimer(this, 0, 20); // Run every second
 
-            getServer().broadcastMessage("An auction has started for " + startingPrice + " coins. Use /bid to participate. Bidding ends in 1 minute.");
+            getServer().broadcastMessage(player.getName() + "An auction has started for " + startingPrice + " coins. Use /bid to participate. Bidding ends in 1 minute.");
 
         } else if (cmd.getName().equalsIgnoreCase("bid")) {
             if (currentAuction == null) {
@@ -151,8 +152,8 @@ public class AuctionPlugin extends JavaPlugin implements CommandExecutor, Listen
 
         Inventory gui = Bukkit.createInventory(player, 9, ChatColor.AQUA + "Auction Info");
 
-        ItemStack itemStack = currentAuction.getItem();
-        ItemMeta meta = itemStack.getItemMeta();
+        ItemStack itemStack = currentAuction.getItem().clone(); // Create a copy of the original item
+        ItemMeta meta = itemStack.getItemMeta().clone(); // Create a copy of the original item's meta
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.YELLOW + "Starting Price: " + currentAuction.getStartingPrice());
         lore.add(ChatColor.YELLOW + "Current Highest Bid: " + currentAuction.getHighestBid());
@@ -171,9 +172,16 @@ public class AuctionPlugin extends JavaPlugin implements CommandExecutor, Listen
             Player player = (Player) event.getInventory().getHolder();
             if (currentAuction != null && event.getView().getTitle().equalsIgnoreCase(ChatColor.AQUA + "Auction Info")) {
                 event.setCancelled(true); // Cancelling inventory clicks to prevent picking up items
+
+                // Remove lore from the original item after the GUI is closed or the item is clicked
+                ItemStack itemStack = currentAuction.getItem();
+                ItemMeta meta = itemStack.getItemMeta();
+                meta.setLore(new ArrayList<>());
+                itemStack.setItemMeta(meta);
             }
         }
     }
+
 
     private static class AuctionItem {
         private ItemStack item;
