@@ -1,0 +1,9 @@
+name: auction
+version: '${project.version}'
+main: me.qsox.auction.Auction
+api-version: '1.20'
+
+commands:
+  auc:
+  bid:
+  auctioninfo:
