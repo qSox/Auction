@@ -17,6 +17,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class Auction extends JavaPlugin implements CommandExecutor, Listener {
 
@@ -85,7 +87,14 @@ public class Auction extends JavaPlugin implements CommandExecutor, Listener {
                 }
             }.runTaskTimer(this, 0, 20); // Run every second
 
-            getServer().broadcastMessage(player.getName() + "An auction has started for " + startingPrice + " coins. Use /bid to participate. Bidding ends in 1 minute.");
+            TextComponent auctionInfo = new TextComponent("Click here to view auction info.");
+            auctionInfo.setColor(net.md_5.bungee.api.ChatColor.BLUE);
+            auctionInfo.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/auctioninfo"));
+
+            TextComponent message = new TextComponent(player.getName() + "An auction has started for " + startingPrice + " coins. Use /bid to participate. Bidding ends in 1 minute. ");
+            message.addExtra(auctionInfo);
+
+            Bukkit.spigot().broadcast(message);
 
         } else if (cmd.getName().equalsIgnoreCase("bid")) {
             if (currentAuction == null) {
