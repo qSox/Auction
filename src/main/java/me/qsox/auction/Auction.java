@@ -13,12 +13,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Auction extends JavaPlugin implements CommandExecutor, Listener {
+public class AuctionPlugin extends JavaPlugin implements CommandExecutor, Listener {
 
     private AuctionItem currentAuction;
 
@@ -62,11 +61,6 @@ public class Auction extends JavaPlugin implements CommandExecutor, Listener {
                 player.sendMessage("You must hold an item to auction.");
                 return true;
             }
-
-            // Remove lore before creating AuctionItem
-            ItemMeta meta = itemInHand.getItemMeta();
-            meta.setLore(null);
-            itemInHand.setItemMeta(meta);
 
             currentAuction = new AuctionItem(itemInHand, startingPrice, player);
 
@@ -137,23 +131,15 @@ public class Auction extends JavaPlugin implements CommandExecutor, Listener {
         if (currentAuction == null) return;
 
         Player winner = currentAuction.getHighestBidder();
-        ItemStack itemStack = currentAuction.getItem();
-        ItemMeta meta = itemStack.getItemMeta();
-
         if (winner != null) {
-            winner.getInventory().addItem(itemStack);
+            winner.getInventory().addItem(currentAuction.getItem());
             winner.sendMessage("Congratulations! You won the auction for " + currentAuction.getHighestBid() + " coins.");
             getServer().broadcastMessage("Auction ended. " + winner.getName() + " won the auction for " + currentAuction.getHighestBid() + " coins.");
         } else {
-            currentAuction.getOwner().getInventory().addItem(itemStack);
+            currentAuction.getOwner().getInventory().addItem(currentAuction.getItem());
             currentAuction.getOwner().sendMessage("Auction ended with no bids. Item returned to your inventory.");
             getServer().broadcastMessage("Auction ended with no bids.");
         }
-
-        // Remove lore
-        meta.setLore(null);
-        itemStack.setItemMeta(meta);
-
         currentAuction = null;
     }
 
@@ -232,40 +218,3 @@ public class Auction extends JavaPlugin implements CommandExecutor, Listener {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
